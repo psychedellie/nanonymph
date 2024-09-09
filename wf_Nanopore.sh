@@ -53,12 +53,12 @@ db_amrf=$db_root/amrfinder/latest  # Path to the latest AMRFinder database
 organism_file=scripts/config/supported_organisms.yaml
 
 # Define result directories where output data will be stored
-results_dir=$output_dir/Results/  # Main results directory
-consensus_dir=$results_dir/Consensus  # Directory for consensus sequences
-mlst_dir=$results_dir/MLST  # Directory for MLST results
-plasmidfinder_dir=$results_dir/PlasmidFinder  # Directory for PlasmidFinder results
-amrfinder_dir=$results_dir/AMRFinderPlus  # Directory for AMRFinderPlus results
-resfinder_dir=$results_dir/ResFinder  # Directory for ResFinder results
+results_dir="$output_dir/Results/"  # Main results directory
+consensus_dir="$results_dir/Consensus"  # Directory for consensus sequences
+mlst_dir="$results_dir/MLST"  # Directory for MLST results
+plasmidfinder_dir="$results_dir/PlasmidFinder"  # Directory for PlasmidFinder results
+amrfinder_dir="$results_dir/AMRFinderPlus"  # Directory for AMRFinderPlus results
+resfinder_dir="$results_dir/ResFinder"  # Directory for ResFinder results
 
 # Create result directories if they do not already exist
 mkdir -p $consensus_dir $mlst_dir $plasmidfinder_dir $amrfinder_dir $resfinder_dir
@@ -180,17 +180,17 @@ for np_raw_file in $(find $input_dir -maxdepth 1 -iname "*.fastq.gz") ; do
 	unicycler_resfinder=$unicycler_dir/resfinder
 	sh scripts/resfinder.sh $unicycler_consensus $unicycler_resfinder $db_res $db_point $db_disinf > "$log_dir/unicycler_resfinder.log" 2>&1
 	
-	# Collecting results
-	ln -s $flye_consensus $results_dir/Consensus/"$sample"_flye.fasta
-	ln -s $unicycler_consensus $results_dir/Consensus/"$sample"_uc.fasta
-	ln -s $flye_mlst $results_dir/MLST/"$sample"_flye.tsv
-	ln -s $unicycler_mlst $results_dir/MLST/"$sample"_uc.tsv
-	ln -s $flye_plasfinder $results_dir/PlasmidFinder/"$sample"_flye
-	ln -s $unicycler_plasfinder $results_dir/PlasmidFinder/"$sample"_uc
-	ln -s $flye_resfinder $results_dir/ResFinder/"$sample"_flye
-	ln -s $unicycler_resfinder $results_dir/ResFinder/"$sample"_uc
-	ln -s $flye_amrfinder $results_dir/AMRFinderPlus/"$sample"_flye.tsv
-	ln -s $unicycler_amrfinder $results_dir/AMRFinderPlus/"$sample"_uc.tsv
+# Collecting results
+	ln -s "$flye_consensus" "$results_dir/Consensus/${sample}_flye.fasta"
+	ln -s "$unicycler_consensus" "$results_dir/Consensus/${sample}_uc.fasta"
+	ln -s "$flye_mlst" "$results_dir/MLST/${sample}_flye.tsv"
+	ln -s "$unicycler_mlst" "$results_dir/MLST/${sample}_uc.tsv"
+	ln -s "$flye_plasfinder" "$results_dir/PlasmidFinder/${sample}_flye"
+	ln -s "$unicycler_plasfinder" "$results_dir/PlasmidFinder/${sample}_uc"
+	ln -s "$flye_resfinder" "$results_dir/ResFinder/${sample}_flye"
+	ln -s "$unicycler_resfinder" "$results_dir/ResFinder/${sample}_uc"
+	ln -s "$flye_amrfinder" "$results_dir/AMRFinderPlus/${sample}_flye.tsv"
+	ln -s "$unicycler_amrfinder" "$results_dir/AMRFinderPlus/${sample}_uc.tsv"
 	
 done
 
