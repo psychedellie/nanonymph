@@ -1,0 +1,12 @@
+name: analysis
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - mlst
+  - ncbi-amrfinderplus
+  - plasmidfinder
+  - resfinder
+  - requests
+  - pyyaml
+

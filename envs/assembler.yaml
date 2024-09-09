@@ -1,0 +1,11 @@
+name: assembler
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - flye
+  - unicycler
+  - medaka
+  - polypolish
+  - prokka
+
