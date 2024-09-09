@@ -64,7 +64,7 @@ resfinder_dir=$results_dir/ResFinder  # Directory for ResFinder results
 mkdir -p $consensus_dir $mlst_dir $plasmidfinder_dir $amrfinder_dir $resfinder_dir
 
 # Loop through all .fastq.gz files in raw reads directory
-for np_raw_file in $(find $input_dir -iname "*.fastq.gz" -maxdepth 1) ; do
+for np_raw_file in $(find $input_dir -maxdepth 1 -iname "*.fastq.gz") ; do
    	# Extract the sample name without the .fastq.gz extension
 	sample=$(basename "$np_raw_file" .fastq.gz)
 
@@ -148,7 +148,7 @@ for np_raw_file in $(find $input_dir -iname "*.fastq.gz" -maxdepth 1) ; do
 	# MLST on Unicycler consensus
 	echo "Performing MLST on Unicycler consensus..."
 	unicycler_mlst=$unicycler_dir/mlst.tsv
-	sh scripts/mlst.sh $unicycler_consensus $unicycler_mlst $sample > "$log_dir/unicycler_mlst.log" 2>&1
+	sh scripts/mlst.sh $unicycler_consen sus $unicycler_mlst $sample > "$log_dir/unicycler_mlst.log" 2>&1
 
 	# PlasmidFinder on Flye consensus
 	echo "Running PlasmidFinder on Flye consensus..."
