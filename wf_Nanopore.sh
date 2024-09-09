@@ -176,17 +176,16 @@ for np_raw_file in $(find $input_dir -iname "*.fastq.gz" -maxdepth 1) ; do
 	sh scripts/resfinder.sh $unicycler_consensus $unicycler_resfinder $db_res $db_point $db_disinf
 	
 	# Collecting results
-	cp $flye_consensus $results_dir/Consensus/"$sample"_flye.fasta
-	cp $unicycler_consensus $results_dir/Consensus/"$sample"_uc.fasta
-	cp $flye_mlst $results_dir/MLST/"$sample"_flye.tsv
-	cp $unicycler_mlst $results_dir/MLST/"$sample"_uc.tsv
-	cp -r $flye_plasfinder $results_dir/PlasmidFinder/"$sample"_flye
-	cp -r $unicycler_plasfinder $results_dir/PlasmidFinder/"$sample"_uc
-	cp -r $flye_resfinder $results_dir/ResFinder/"$sample"_flye
-	cp -r $unicycler_resfinder $results_dir/ResFinder/"$sample"_uc
-	cp $flye_amrfinder $results_dir/AMRFinderPlus/"$sample"_flye.tsv
-	cp $unicycler_amrfinder $results_dir/AMRFinderPlus/"$sample"_uc.tsv
+	ln -s $flye_consensus $results_dir/Consensus/"$sample"_flye.fasta
+	ln -s $unicycler_consensus $results_dir/Consensus/"$sample"_uc.fasta
+	ln -s $flye_mlst $results_dir/MLST/"$sample"_flye.tsv
+	ln -s $unicycler_mlst $results_dir/MLST/"$sample"_uc.tsv
+	ln -s $flye_plasfinder $results_dir/PlasmidFinder/"$sample"_flye
+	ln -s $unicycler_plasfinder $results_dir/PlasmidFinder/"$sample"_uc
+	ln -s $flye_resfinder $results_dir/ResFinder/"$sample"_flye
+	ln -s $unicycler_resfinder $results_dir/ResFinder/"$sample"_uc
+	ln -s $flye_amrfinder $results_dir/AMRFinderPlus/"$sample"_flye.tsv
+	ln -s $unicycler_amrfinder $results_dir/AMRFinderPlus/"$sample"_uc.tsv
 	
-
 done
 
