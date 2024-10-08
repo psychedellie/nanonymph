@@ -63,7 +63,7 @@ resfinder_dir=$results_dir/ResFinder  # Directory for ResFinder results
 mkdir -p $consensus_dir $mlst_dir $plasmidfinder_dir $amrfinder_dir $resfinder_dir
 
 # Loop through all .fastq.gz files in raw reads directory
-for np_raw_file in $(find $input_dir -iname "*.fastq.gz" -maxdepth 1) ; do
+for np_raw_file in $(find $input_dir -maxdepth 1 -iname "*.fastq.gz") ; do
    	# Extract the sample name without the .fastq.gz extension
 	sample=$(basename "$np_raw_file" .fastq.gz)
 
