@@ -42,10 +42,8 @@ echo "Threads:            $threads"  # Number of threads for processing
 echo "=============================="
 
 # Define paths for the databases, assuming they are subdirectories within $db_root
-db_plasm=$db_root/plasmidfinder/blast  # Path to the PlasmidFinder database
-db_res=$db_root/resfinder/blast  # Path to the ResFinder database
-db_point=$db_root/pointfinder/blast  # Path to the PointFinder database
-db_disinf=$db_root/disinfinder/blast  # Path to the Disinfinder database
+db_plasm=$db_root/plasmidfinder/  # Path to the PlasmidFinder database
+db_res=$db_root/resfinder/  # Path to the ResFinder database
 db_amrf=$db_root/amrfinder/latest  # Path to the latest AMRFinder database
 
 # Path to the file that contains supported organism information
@@ -84,19 +82,8 @@ for np_raw_file in $(find $input_dir -maxdepth 1 -iname "*.fastq.gz") ; do
 	  echo "Assembly file detected, skipping assembly: $flye_assembly"
 	fi
 
-	# Assemblying with unicycler
-	echo "Assemblying with unicycler..."
-	unicycler_dir=$output_dir/unicycler/$sample
-	unicycler_assembly=$unicycler_dir/assembly.fasta
-	if [ ! -f $unicycler_assembly ];then
-	  mkdir -p "$unicycler_dir"  # Ensure the directory exists
-	  sh scripts/unicycler_lr.sh $np_raw_file $unicycler_dir $threads > "$log_dir/unicycler.log" 2>&1
-	else
-	  echo "Assembly file detected, skipping assembly: $unicycler_assembly"
-	fi
-
-	# Polishing Flye assemblies
-	echo "Polishing Flye assemblies..."
+	# Polishing assemblies
+	echo "Polishing assemblies..."
 	flye_medaka=$flye_dir/medaka
 	flye_consensus=$flye_medaka/consensus.fasta
 	if [ ! -f $flye_consensus ]; then
@@ -106,91 +93,43 @@ for np_raw_file in $(find $input_dir -maxdepth 1 -iname "*.fastq.gz") ; do
 	  echo "Consensus file detected, skipping polishing: $flye_consensus"
 	fi
 
-	# Polishing unicycler assemblies
-	echo "Polishing unicycler assemblies..."
-	unicycler_medaka=$unicycler_dir/medaka
-	unicycler_consensus=$unicycler_medaka/consensus.fasta
-	if [ ! -f $unicycler_consensus ]; then
-	  mkdir -p "$unicycler_medaka"  # Ensure the directory exists
-	  sh scripts/medaka.sh $np_raw_file $unicycler_medaka $unicycler_assembly > "$log_dir/medaka_unicycler.log" 2>&1
-	else
-	  echo "Consensus file detected, skipping polishing: $unicycler_consensus"
-	fi
-
-    	# Annotation with Prokka on Flye consensus
-    	echo "Annotating Flye consensus with Prokka..."
+    	# Annotation with Prokka on consensus
+    	echo "Annotating consensus with Prokka..."
     	flye_prokka_dir=$flye_dir/prokka
     	sh scripts/prokka.sh $flye_consensus $flye_prokka_dir $sample > "$log_dir/prokka_flye.log" 2>&1
-    	
-    	# Annotation with Prokka on Unicycler consensus
-    	echo "Annotating Unicycler consensus with Prokka..."
-		unicycler_prokka_dir=$unicycler_dir/prokka
-    	sh scripts/prokka.sh $unicycler_consensus $unicycler_prokka_dir $sample  > "$log_dir/prokka_unicycler.log" 2>&1
     
-	# rMLST on Flye consensus
-	echo "Performing rMLST on Flye consensus..."
+	# rMLST on consensus
+	echo "Performing rMLST on consensus..."
 	species_flye_file=$flye_dir/$sample.species
 	flye_rmlst=$flye_dir/"${sample}"_flye_rmlst.tsv
 	sh scripts/run_rmlst.sh $flye_consensus $flye_rmlst $organism_file $species_flye_file scripts > "$log_dir/rmlst_flye.log" 2>&1
 
-	# rMLST on Unicycler consensus
-	echo "Performing rMLST on Unicycler consensus..."
-	species_unicycler_file=$unicycler_dir/$sample.species
-	unicycler_rmlst=$unicycler_dir/"${sample}"_unicycler_rmlst.tsv
-	sh scripts/run_rmlst.sh $unicycler_consensus $unicycler_rmlst $organism_file $species_unicycler_file scripts > "$log_dir/rmlst_unicycler.log" 2>&1
-
-	# MLST on Flye consensus
-	echo "Performing MLST on Flye consensus..."
+	# MLST on consensus
+	echo "Performing MLST on consensus..."
 	flye_mlst=$flye_dir/mlst.tsv 
 	sh scripts/mlst.sh $flye_consensus $flye_mlst $sample > "$log_dir/mlst_flye.log" 2>&1
 
-	# MLST on Unicycler consensus
-	echo "Performing MLST on Unicycler consensus..."
-	unicycler_mlst=$unicycler_dir/mlst.tsv 
-	sh scripts/mlst.sh $unicycler_consensus $unicycler_mlst $sample > "$log_dir/mlst_unicycler.log" 2>&1
-
-	# PlasmidFinder on Flye consensus
-	echo "PlasmidFinder on Flye consensus..."
+	# PlasmidFinder on consensus
+	echo "PlasmidFinder on consensus..."
 	flye_plasfinder=$flye_dir/plasmidfinder 
 	sh scripts/plasmidfinder.sh $flye_consensus $flye_plasfinder $db_plasm > "$log_dir/plasmidfinder_flye.log" 2>&1
 
-	# PlasmidFinder on Unicycler consensus
-	echo "PlasmidFinder on Unicycler consensus..."
-	unicycler_plasfinder=$unicycler_dir/plasmidfinder 
-	sh scripts/plasmidfinder.sh $unicycler_consensus $unicycler_plasfinder $db_plasm > "$log_dir/plasmidfinder_unicycler.log" 2>&1
-
-	# AMRFinderPlus on Flye consensus
-	echo "AMRFinderPlus on Flye consensus..."
+	# AMRFinderPlus on consensus
+	echo "AMRFinderPlus on consensus..."
 	flye_amrfinder=$flye_dir/"${sample}"_flye_amrf.tsv
 	sh scripts/amrfinderplus.sh $flye_consensus $flye_amrfinder $db_amrf $species_flye_file $threads > "$log_dir/amrfinder_flye.log" 2>&1
 
-	# AMRFinderPlus on Unicycler consensus
-	echo "AMRFinderPlus on Unicycler consensus..."
-	unicycler_amrfinder=$unicycler_dir/"${sample}"_unicycler_amrf.tsv 
-	sh scripts/amrfinderplus.sh $unicycler_consensus $unicycler_amrfinder $db_amrf $species_unicycler_file $threads > "$log_dir/amrfinder_unicycler.log" 2>&1
-
-	# ResFinder on Flye consensus
-	echo "ResFinder on Flye consensus..."
+	# ResFinder on consensus
+	echo "ResFinder on consensus..."
 	flye_resfinder=$flye_dir/resfinder
-	sh scripts/resfinder.sh $flye_consensus $flye_resfinder $db_res $db_point $db_disinf > "$log_dir/resfinder_flye.log" 2>&1
-
-	# ResFinder on Unicycler consensus
-	echo "ResFinder on Unicycler consensus..."
-	unicycler_resfinder=$unicycler_dir/resfinder
-	sh scripts/resfinder.sh $unicycler_consensus $unicycler_resfinder $db_res $db_point $db_disinf > "$log_dir/resfinder_unicycler.log" 2>&1
+	sh scripts/resfinder.sh $flye_consensus $flye_resfinder $db_res > "$log_dir/resfinder_flye.log" 2>&1
 	
 	# Collecting results
 	cp $flye_consensus $results_dir/Consensus/"$sample"_flye.fasta
-	cp $unicycler_consensus $results_dir/Consensus/"$sample"_uc.fasta
 	cp $flye_mlst $results_dir/MLST/"$sample"_flye.tsv
-	cp $unicycler_mlst $results_dir/MLST/"$sample"_uc.tsv
 	cp -r $flye_plasfinder $results_dir/PlasmidFinder/"$sample"_flye
-	cp -r $unicycler_plasfinder $results_dir/PlasmidFinder/"$sample"_uc
 	cp -r $flye_resfinder $results_dir/ResFinder/"$sample"_flye
-	cp -r $unicycler_resfinder $results_dir/ResFinder/"$sample"_uc
-	cp $flye_amrfinder $results_dir/AMRFinderPlus/"$sample"_flye.tsv
-	cp $unicycler_amrfinder $results_dir/AMRFinderPlus/"$sample"_uc.tsv
-	
+	cp $flye_amrfinder $results_dir/AMRFinderPlus/"$sample"_flye.tsv	
 
 done
 
