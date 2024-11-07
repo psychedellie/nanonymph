@@ -1,0 +1,6 @@
+name: rmlst
+channels:
+  - conda-forge
+dependencies:
+  - requests
+  - pyyaml

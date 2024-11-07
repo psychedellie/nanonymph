@@ -1,0 +1,7 @@
+name: gep-finders
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - plasmidfinder
+  - resfinder
