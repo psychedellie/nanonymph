@@ -2,6 +2,7 @@
 
 # Set default values for optional arguments
 threads=3  # Default number of threads if not provided
+db_root=databases # Default database directory
 
 # Initialize variables for required arguments (these must be passed by the user)
 input_dir=""
@@ -12,6 +13,7 @@ output_dir=""
 # -i: Path to the input directory (required)
 # -o: Path to the output directory (required)
 # -t: Number of threads to use (optional)
+# -b: Basecaller model (optional)
 while getopts ":d:i:o:t:" option; do
     case $option in
         d) db_root=$OPTARG;;  # Set database directory
