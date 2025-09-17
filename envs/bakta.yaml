@@ -1,6 +1,6 @@
-name: prokka
+name: bakta
 channels:
   - conda-forge
   - bioconda
 dependencies:
-  - prokka
+  - bakta
