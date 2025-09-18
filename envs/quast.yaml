@@ -1,6 +1,6 @@
-name: gep-finders
+name: quast
 channels:
   - conda-forge
   - bioconda
 dependencies:
-  - plasmidfinder
+  - quast
