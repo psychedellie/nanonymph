@@ -100,7 +100,7 @@ def processDir(folder, options):
             if not os.path.exists(opt.out_dir):
                 os.makedirs(opt.out_dir)
             out_prefix1 = os.path.join(opt.out_dir, os.path.basename(getBaseName(opt.read_file)))
-            cmd += " -o " + out_prefix1 + ".clean.fastq.gz"
+            cmd += " -o " + out_prefix1 + ".hq.fastq.gz"
         
         # NEW: add -w <threads> if provided, unless user already supplied -t in --args
         if getattr(opt, "thread", None) is not None:
@@ -136,16 +136,10 @@ def processDir(folder, options):
             print(future.result())
 
 def run_command(command):
-    log_file = os.path.join(os.getcwd(), "fastplong_debug.log")
+    # Removed fastplong_debug.log writing
     print("Running command: " + command)
-    with open(log_file, "a") as lf:
-        lf.write(f"\n=== {time.strftime('%F %T')} ===\n")
-        lf.write(f"COMMAND: {command}\n")
     # capture both stdout and stderr
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
-    with open(log_file, "a") as lf:
-        lf.write(result.stdout)
-        lf.write(result.stderr)
     return result.stdout
     
 def generate_summary_html(report_dir, fastplone_cmd=None):
