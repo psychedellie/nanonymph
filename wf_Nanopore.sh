@@ -8,6 +8,7 @@ input_dir=""
 output_dir=""
 basecaller=""
 db_root=""
+sample_sheet=""   # [EXTRA] Sample sheet CSV with barcode,isolate_id
 
 # Parse arguments passed to the script
 # -d: Path to the database root (optional)
@@ -15,13 +16,15 @@ db_root=""
 # -o: Path to the output directory (required)
 # -t: Number of threads to use (optional)
 # -m: Basecaller model (optional)
-while getopts ":d:i:o:t:m:" option; do
+# -s: Sample sheet CSV with headers: barcode,isolate_id   [EXTRA]
+while getopts ":d:i:o:t:m:s:" option; do
     case $option in
         d) db_root=$OPTARG;;          # Set database directory
         i) input_dir=$OPTARG;;        # Set input directory
         o) output_dir=$OPTARG;;       # Set output directory
         t) threads=$OPTARG;;          # Override default threads if provided
         m) basecaller=$OPTARG;;       # Set basecaller model
+        s) sample_sheet=$OPTARG;;     # [EXTRA] Set sample sheet
         \?) echo "Invalid option: -$OPTARG" >&2; exit 1;;
         :)  echo "Option -$OPTARG requires an argument." >&2; exit 1;;
     esac
@@ -30,14 +33,27 @@ done
 # Ensure required arguments are provided
 # (basecaller is OPTIONAL; threads has a default)
 if [ -z "$db_root" ] || [ -z "$input_dir" ] || [ -z "$output_dir" ]; then
-    echo "Usage: $0 -d <db_root> -i <input_dir> -o <output_dir> [-t <threads>] [-m <basecaller_model>]"
+    echo "Usage: $0 -d <db_root> -i <input_dir> -o <output_dir> [-s <sample_sheet.csv>] [-t <threads>] [-m <basecaller_model>]"
     echo "  -d: Path to the database root (required)"
     echo "  -i: Path to the input directory (required)"
     echo "  -o: Path to the output directory (required)"
+    echo "  -s: CSV file with barcode,isolate_id (optional but recommended)"   # [EXTRA]
     echo "  -t: Number of threads to use (optional, default: $threads)"
     echo "  -m: Basecaller model (optional)"
     exit 1
 fi
+
+# ------------------------------
+# [EXTRA] Call merge script if sample_sheet provided
+# ------------------------------
+if [ -n "$sample_sheet" ]; then
+  merged_dir="$output_dir/reads_merged"
+  mkdir -p "$merged_dir"
+  echo "[merge] Running scripts/merge_fastqs.sh on $sample_sheet..."
+  scripts/merge_fastqs.sh "$input_dir" "$merged_dir" "$sample_sheet"
+  input_dir="$merged_dir"
+fi
+# ------------------------------
 
 # Print the configuration to verify the arguments being used
 echo "=============================="
@@ -183,3 +199,4 @@ if ls "$results_dir/AMRFinderPlus"/*.html >/dev/null 2>&1; then
 else
   bash scripts/generate_html.sh "$results_dir/AMRFinderPlus"
 fi
+
