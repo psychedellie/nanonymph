@@ -204,3 +204,4 @@ else
   bash scripts/generate_html.sh "$results_dir/AMRFinderPlus"
 fi
 
+Rscript scripts/NGS_Report_v2.1.R $results_dir $sample_sheet $quast_dir $mlst_dir $rmlst_dir $plasmidfinder_dir $amrfinder_dir
