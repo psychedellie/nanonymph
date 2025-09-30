@@ -176,14 +176,14 @@ cat <<'EOF' >> "$output_file"
       }
       const filename=getFilteredFileName();
       if(format==="CSV"){
-        const csv=content.map(r=>r.join(",")).join("\\n");
+        const csv=content.map(r=>r.join(",")).join("\n");
         const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"}); const a=document.createElement("a");
         a.href=URL.createObjectURL(blob); a.download=filename+".csv"; a.click();
       }else if(format==="Excel"){
         const wb=XLSX.utils.book_new(); const ws=XLSX.utils.aoa_to_sheet(content);
         XLSX.utils.book_append_sheet(wb,ws,"Results"); XLSX.writeFile(wb,filename+".xlsx");
       }else if(format==="TSV"){
-        const tsv=content.map(r=>r.join("\\t")).join("\\n");
+        const tsv=content.map(r=>r.join("\t")).join("\n");
         const blob=new Blob([tsv],{type:"text/tab-separated-values;charset=utf-8;"}); const a=document.createElement("a");
         a.href=URL.createObjectURL(blob); a.download=filename+".tsv"; a.click();
       }

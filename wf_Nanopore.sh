@@ -81,9 +81,11 @@ amrfinder_dir="$results_dir/AMRFinderPlus"
 fastplong_dir="$output_dir/fastplong"
 filtered_outdir="$fastplong_dir/filtered_reads"
 bakta_dir="$results_dir/Bakta"
+rmlst_dir="$results_dir/rMLST"
+quast_dir="$results_dir/QUAST"
 
 # Create result directories
-mkdir -p "$consensus_dir" "$mlst_dir" "$plasmidfinder_dir" "$amrfinder_dir" "$filtered_outdir" "$bakta_dir"
+mkdir -p "$consensus_dir" "$mlst_dir" "$plasmidfinder_dir" "$amrfinder_dir" "$filtered_outdir" "$bakta_dir" "$rmlst_dir" "$quast_dir"
 
 # Skip fastplong if filtered reads already exist
 if find "$filtered_outdir" -maxdepth 1 -iname "*.fastq.gz" | read -r _; then
@@ -190,7 +192,9 @@ for np_raw_file in $(find "$filtered_outdir" -maxdepth 1 -iname "*.fastq.gz"); d
     cp "$flye_mlst" "$mlst_dir/${sample}_ONT.tsv"
     cp -r "$flye_plasfinder/results_tab.tsv" "$plasmidfinder_dir/${sample}_ONT.tsv"
     cp "$flye_amrfinder" "$amrfinder_dir/${sample}_ONT.txt"
-    cp -r "$flye_bakta_dir/${sample}.tsv" "$bakta_dir/${sample}_ONT.tsv"
+    cp -r "$flye_bakta_dir/$sample.tsv" "$bakta_dir/${sample}_ONT.tsv"
+    cp -r "$flye_quast_dir/transposed_report.tsv" "$quast_dir/${sample}_ONT.tsv"
+    cp -r "$flye_rmlst" "$rmlst_dir/${sample}_ONT.tsv"
 done
 
 # Skip report generation if an AMRFinderPlus HTML already exists

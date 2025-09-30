@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # scripts/merge_fastqs.sh
-# Merge ONT FASTQs by barcode, filtered by CSV (barcode,isolate_id).
+# Merge ONT FASTQs by barcode, filtered by CSV (Lab_ID, Index).
 # Usage: scripts/merge_fastqs.sh <input_dir> <output_dir> <sample_sheet.csv>
 
 input_dir=$1
@@ -11,26 +11,26 @@ sample_sheet=$3
 
 mkdir -p "$output_dir"
 
-# Validate header
+# Validate header (expect Lab_ID in col1 and Index in col3)
 header=$(head -n1 "$sample_sheet" | tr -d '\r')
-IFS=, read -r col1 col2 <<< "$header"
-lc1=$(echo "$col1" | tr '[:upper:]' '[:lower:]')
-lc2=$(echo "$col2" | tr '[:upper:]' '[:lower:]')
-if [[ "$lc1" != "barcode" || "$lc2" != "isolate_id" ]]; then
-  echo "ERROR: Sample sheet must have header: barcode,isolate_id"
+IFS=, read -r lab_id _ index _ <<< "$header"
+lc1=$(echo "$lab_id" | tr '[:upper:]' '[:lower:]')
+lc2=$(echo "$index" | tr '[:upper:]' '[:lower:]')
+if [[ "$lc1" != "lab_id" || "$lc2" != "index" ]]; then
+  echo "ERROR: Sample sheet must have Lab_ID in first column and Index in third"
   exit 1
 fi
 
-# Check for duplicate isolate_ids
-dups=$(tail -n +2 "$sample_sheet" | cut -d, -f2 | sort | uniq -d)
+# Check for duplicate Lab_IDs
+dups=$(tail -n +2 "$sample_sheet" | cut -d, -f1 | sort | uniq -d)
 if [ -n "$dups" ]; then
-  echo "ERROR: Duplicate isolate IDs in sample sheet:"
+  echo "ERROR: Duplicate Lab_IDs in sample sheet:"
   echo "$dups" | sed 's/^/  - /'
   exit 1
 fi
 
-# Merge loop
-tail -n +2 "$sample_sheet" | while IFS=, read -r barcode isolate || [ -n "$barcode$isolate" ]; do
+# Merge loop: use col1 (Lab_ID) and col3 (Index)
+tail -n +2 "$sample_sheet" | while IFS=, read -r isolate _ barcode _; do
   barcode="$(echo "$barcode" | xargs)"
   isolate="$(echo "$isolate" | xargs)"
   [ -z "$barcode" ] && continue
