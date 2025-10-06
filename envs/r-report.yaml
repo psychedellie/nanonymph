@@ -1,0 +1,11 @@
+name: r-nano
+channels:
+  - conda-forge
+dependencies:
+  - r-base
+  - r-readr
+  - r-dplyr
+  - r-tibble
+  - r-purrr
+  - r-stringr
+  - r-openxlsx

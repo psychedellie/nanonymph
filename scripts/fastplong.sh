@@ -13,4 +13,4 @@ $RUNNER bash -lc 'command -v fastplong' >/dev/null || {
   echo "fastplong not found in env 'fastplong'"; exit 1; }
 
 $RUNNER python $script_dir/parallel.py \
-  --input_dir $input_dir --out_dir $output_dir --thread $threads
+  --input_dir $input_dir --out_dir $output_dir --thread $threads --args '-f 10 -t 10 -m 10'

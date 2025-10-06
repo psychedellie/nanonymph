@@ -44,14 +44,39 @@ if [ -z "$db_root" ] || [ -z "$input_dir" ] || [ -z "$output_dir" ]; then
 fi
 
 # ------------------------------
-# [EXTRA] Call merge script if sample_sheet provided
+# [EXTRA] Merge logic + keep sample_sheet for reporting
 # ------------------------------
-if [ -n "$sample_sheet" ]; then
-  merged_dir="$output_dir/reads_merged"
-  mkdir -p "$merged_dir"
-  echo "[merge] Running scripts/merge_fastqs.sh on $sample_sheet..."
-  scripts/merge_fastqs.sh "$input_dir" "$merged_dir" "$sample_sheet"
+merged_dir="$output_dir/reads_merged"
+
+# Case A: analysis/reads_merged already exists with FASTQs → use it, regardless of sample_sheet
+if [ -d "$merged_dir" ] && compgen -G "$merged_dir/*.fastq.gz" > /dev/null; then
+  echo "[merge] Detected existing merged FASTQs in $merged_dir — skipping merge."
   input_dir="$merged_dir"
+
+else
+  # Detect barcode-style input (barcode01/, barcode02/, ...)
+  if find "$input_dir" -mindepth 1 -maxdepth 1 -type d -iname "barcode*" | read -r _; then
+    # For barcode layout, we need the sample sheet to map barcode → isolate_id
+    if [ -n "$sample_sheet" ]; then
+      echo "[merge] Detected 'barcode*' directories in $input_dir — merging using $sample_sheet."
+      mkdir -p "$merged_dir"
+      scripts/merge_fastqs.sh "$input_dir" "$merged_dir" "$sample_sheet"
+      input_dir="$merged_dir"
+    else
+      echo "[merge] ERROR: Found 'barcode*' directories but no -s <sample_sheet.csv> provided." >&2
+      echo "        Provide a sample sheet to perform merging (headers: barcode,isolate_id)." >&2
+      exit 1
+    fi
+
+  # Case C: top-level FASTQs present → assume already merged; still keep sample_sheet for reporting
+  elif compgen -G "$input_dir/*.fastq.gz" > /dev/null; then
+    echo "[merge] Found FASTQs directly in $input_dir — assuming already merged; skipping merge."
+    # input_dir remains as-is
+
+  else
+    echo "[merge] ERROR: No 'barcode*' dirs and no FASTQs found in $input_dir. Check your paths." >&2
+    exit 1
+  fi
 fi
 # ------------------------------
 
@@ -204,4 +229,4 @@ else
   bash scripts/generate_html.sh "$results_dir/AMRFinderPlus"
 fi
 
-Rscript scripts/NGS_Report_v2.1.R $results_dir $sample_sheet $quast_dir $mlst_dir $rmlst_dir $plasmidfinder_dir $amrfinder_dir
+sh scripts/report.sh $results_dir $sample_sheet $quast_dir $mlst_dir $rmlst_dir $plasmidfinder_dir $amrfinder_dir
